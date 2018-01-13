@@ -1,0 +1,65 @@
+{
+  "plugins": [
+    "lodash",
+    "promise"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:lodash/recommended",
+    "plugin:promise/recommended"
+  ],
+  "env": {
+    "es6": true,
+    "browser": false,
+    "node": true
+  },
+  "rules": {
+    "indent": [
+      "error",
+      4,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "eol-last": [
+      "error"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "no-var": [
+      "error"
+    ],
+    "prefer-const": [
+      "error"
+    ],
+    "lodash/import-scope": [
+      "error",
+      "member"
+    ],
+    "lodash/prop-shorthand": [
+      2,
+      "never"
+    ],
+    "promise/no-nesting": "off",
+    "promise/no-callback-in-promise": "off",
+    "promise/avoid-new": "off",
+    "lodash/prefer-lodash-method": [
+      2,
+      {
+        "ignoreMethods": [
+          "find"
+        ]
+      }
+    ]
+  }
+}
