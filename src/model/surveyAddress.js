@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
-
-const Schema = mongoose.Schema;
-const ObjectId = Schema.Types.ObjectId;
+const {Schema} = mongoose;
+const {ObjectId} = Schema.Types;
 
 const dwelling = require('./dwelling');
 
-const SurveyAddress = mongoose.model('SurveyAddress', new Schema({
-    dwelling,
-    pollster: {type: ObjectId, required: true},
+module.exports = mongoose.model('SurveyAddress', new Schema({
+    dwellings: [dwelling],
+    user: {type: ObjectId, required: true},
+    address: {type: ObjectId, ref: 'Address', required: true},
     state: {type: Number}
-}, {collection: 'surveyAddresses', timestamps: true}));
-
-module.exports = SurveyAddress;
+}, {collection: 'surveyAddresses_sivy', timestamps: true}));

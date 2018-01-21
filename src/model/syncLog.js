@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
+const {Schema} = mongoose;
+const {ObjectId} = Schema.Types;
 
-const Schema = mongoose.Schema;
-
-const SyncLog = mongoose.model('SyncLog', new Schema({
-    user: {type: String, required: true, ref: 'User'},
+module.exports = mongoose.model('SyncLog', new Schema({
+    user: {type: ObjectId, required: true, ref: 'User'},
     received: {type: Number},
     edited: {type: Number},
     visited: {type: Number},
@@ -12,5 +12,3 @@ const SyncLog = mongoose.model('SyncLog', new Schema({
     created: {type: Number},
     version: {type: String}
 }, {collection: 'syncLogs', timestamps: true}));
-
-module.exports = SyncLog;
