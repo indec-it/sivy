@@ -1,10 +1,50 @@
+const debug = require('debug')('sivy');
 const {RECEIVE_ONLY} = process.env;
 const {map} = require('lodash');
 const {SurveyAddress, surveyAddressState, SyncLog} = require('../model');
 const syncHandlers = require('../helpers/syncHandlers');
 
+const setSurvey = async (survey, syncLog, user) => {
+    if (survey.closed) {
+        syncLog.closed++;
+    }
+    if (survey.visits && survey.visits.length) {
+        syncLog.visited++;
+    }
+    if (!survey.synced) {
+        syncLog.edited++;
+    }
+    survey.user = user._id;
+    const surveyAddress = await SurveyAddress.findOne({
+        _id: survey._id,
+        user: user._id,
+        surveyAddressState: {$lt: surveyAddressState.CLOSED}
+    }).exec();
+    if (!surveyAddress) {
+        return;
+    }
+    surveyAddress.surveyAddressState = survey.closed ? surveyAddressState.RESOLVED : surveyAddressState.IN_PROGRESS;
+    surveyAddress.visits = survey.visits;
+    surveyAddress.dwellings = survey.dwellings;
+    if (survey.valid >= 0) {
+        surveyAddress.valid = survey.valid;
+    }
+    await syncHandlers.preSaveSurvey(surveyAddress, syncLog);
+    await surveyAddress.save();
+};
+
+const getSurvey = async surveyAddress => {
+    if (surveyAddress.surveyAddressState === surveyAddressState.OPEN) {
+        surveyAddress.surveyAddressState = surveyAddressState.IN_PROGRESS;
+    }
+    const survey = (await surveyAddress.save()).toObject();
+    survey.closed = survey.surveyAddressState === surveyAddressState.RESOLVED;
+    return survey;
+};
+
 class SyncController {
     static initSyncLog(req, res, next) {
+        debug('initSyncLog for user %s', req.user._id);
         req.syncLog = new SyncLog({
             user: req.user._id,
             received: 0,
@@ -17,97 +57,52 @@ class SyncController {
         next();
     }
 
-    static setSurveys(req, res, next) {
-        const surveys = req.body.surveys;
-        if (!surveys || !surveys.length) {
-            return next();
-        }
-        req.syncLog.received = surveys.length;
-        syncHandlers.receiveSurveys(surveys, req.syncLog).then(
-            () => Promise.all(map(surveys,
-                survey => {
-                    if (survey.closed) {
-                        req.syncLog.closed++;
-                    }
-                    if (survey.visits && survey.visits.length) {
-                        req.syncLog.visited++;
-                    }
-                    if (!survey.synced) {
-                        req.syncLog.edited++;
-                    }
-                    survey.pollster = req.user._id;
-                    return SurveyAddress.findOne({
-                        _id: survey._id,
-                        user: req.user._id,
-                        surveyAddressState: {$lt: surveyAddressState.CLOSED}
-                    }).exec().then(
-                        surveyAddress => {
-                            if (!surveyAddress) {
-                                return;
-                            }
-                            surveyAddress.surveyAddressState = survey.closed
-                                ? surveyAddressState.RESOLVED
-                                : surveyAddressState.IN_PROGRESS;
-                            surveyAddress.visits = survey.visits;
-                            surveyAddress.dwellings = survey.dwellings;
-                            if (survey.valid >= 0) {
-                                surveyAddress.valid = survey.valid;
-                            }
-                            return syncHandlers.preSaveSurvey(surveyAddress, req.syncLog).then(
-                                () => surveyAddress.save()
-                            );
-                        }
-                    );
-                }
-            ))
-        ).then(
-            () => next()
-        ).catch(next);
-    }
-
-    static getSurveys(req, res, next) {
-        if (RECEIVE_ONLY) {
-            return next();
-        }
-        SurveyAddress.find({
-            user: req.user._id,
-            surveyAddressState: {$lt: surveyAddressState.CLOSED}
-        }).populate('address').exec().then(
-            surveyAddresses => {
-                req.syncLog.sent = surveyAddresses.length;
-                return syncHandlers.getSurveys(surveyAddresses, req.syncLog).then(
-                    () => surveyAddresses
-                );
-            }
-        ).then(
-            surveyAddresses => Promise.all(map(surveyAddresses,
-                surveyAddress => {
-                    if (surveyAddress.surveyAddressState === surveyAddressState.OPEN) {
-                        surveyAddress.surveyAddressState = surveyAddressState.IN_PROGRESS;
-                    }
-                    return surveyAddress.save().then(
-                        surveyAddress => {
-                            surveyAddress = surveyAddress.toObject();
-                            surveyAddress.closed = surveyAddress.surveyAddressState === surveyAddressState.RESOLVED;
-                            return surveyAddress;
-                        }
-                    );
-                }
-            ))
-        ).then(
-            surveyAddresses => {
-                res.surveyAddresses = surveyAddresses;
+    static async setSurveys(req, res, next) {
+        try {
+            const surveys = req.body.surveys;
+            const surveysCount = surveys ? surveys.length : 0;
+            debug('received %s surveys', surveysCount);
+            if (surveysCount === 0) {
                 return next();
             }
-        ).catch(next);
+            req.syncLog.received = surveys.length;
+            await syncHandlers.receiveSurveys(surveys, req.syncLog);
+            await Promise.all(map(surveys, survey => setSurvey(survey, req.syncLog, req.user)));
+            next();
+        }
+        catch (err) {
+            next(err);
+        }
     }
 
-    static saveSyncLog(req, res, next) {
-        syncHandlers.preSaveSyncLog(req.syncLog).then(
-            () => req.syncLog.save()
-        ).then(
-            () => next()
-        ).catch(next);
+    static async getSurveys(req, res, next) {
+        try {
+            if (RECEIVE_ONLY) {
+                return next();
+            }
+            const surveyAddresses = await SurveyAddress.find({
+                user: req.user._id,
+                surveyAddressState: {$lt: surveyAddressState.CLOSED}
+            }).populate('address').exec();
+            debug('sending %s surveys', surveyAddresses.length);
+            req.syncLog.sent = surveyAddresses.length;
+            await syncHandlers.getSurveys(surveyAddresses, req.syncLog);
+            res.surveyAddresses = await Promise.all(map(surveyAddresses, getSurvey));
+            next();
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    static async saveSyncLog(req, res, next) {
+        try {
+            await syncHandlers.preSaveSyncLog(req.syncLog);
+            await req.syncLog.save();
+            debug('syncLog saved for user %s', req.user._id);
+            next();
+        } catch (err) {
+            next(err);
+        }
     }
 }
 
