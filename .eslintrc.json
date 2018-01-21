@@ -8,6 +8,9 @@
     "plugin:lodash/recommended",
     "plugin:promise/recommended"
   ],
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
   "env": {
     "es6": true,
     "browser": false,
