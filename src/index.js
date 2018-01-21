@@ -1,3 +1,4 @@
+require('./helpers/dotenv');
 const express = require('express');
 const app = express();
 

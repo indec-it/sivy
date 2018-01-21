@@ -1,4 +1,3 @@
-require('dotenv').load();
 const winston = require('winston');
 const app = require('./src');
 const {NODE_ENV, PORT} = process.env;
