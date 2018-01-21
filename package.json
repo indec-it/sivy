@@ -7,7 +7,6 @@
     "start": "node index.js",
     "dev": "gulp dev",
     "test": "gulp test",
-    "build": "gulp build",
     "commitmsg": "commitlint -e",
     "precommit": "npm test"
   },
@@ -43,10 +42,8 @@
     "gulp": "3.9.1",
     "gulp-eslint": "4.0.1",
     "gulp-istanbul": "1.1.3",
-    "gulp-json-editor": "^2.2.1",
     "gulp-load-plugins": "1.5.0",
     "gulp-mocha": "5.0.0",
-    "gulp-nodemon": "2.2.1",
     "husky": "^0.14.3",
     "should": "13.2.1",
     "sinon": "4.1.5",
@@ -64,6 +61,6 @@
   },
   "homepage": "https://github.com/indec-it/sivy#readme",
   "engines": {
-    "node": ">=6.12"
+    "node": ">=8.9"
   }
 }
