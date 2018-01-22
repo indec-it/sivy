@@ -1,25 +1,122 @@
-# Sivy
+# Sivy  &middot; [![NPM version](https://img.shields.io/npm/v/@indec/sivy.svg)](https://www.npmjs.com/package/@indec/sivy) [![Build Status](https://travis-ci.org/indec-it/sivy.svg?branch=master)](https://travis-ci.org/indec-it/sivy) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/indec-it/sivy/blob/master/LICENSE)
 
 The survey sincronization server for MongoDB.
 
-## Installation
+## How to use
 
-    npm install @indec/sivy
+### Setup
 
-## Environment variables
+Install it:
 
-  * NODE_ENV
-  * PORT
-  * MONGODB_URI
-  * RECEIVE_ONLY
-  * AUTH_CLIENT_ID
-  * AUTH_CLIENT_SECRET
-  * GRANT_TYPE
-  * AUTH_ENDPOINT
+```bash
+npm install @indec/sivy
+```
 
-## Handlers
+> Sivy requires node@8.9
 
-  * receiveSurveys(surveys, syncLog)
-  * preSaveSurvey(surveyAddress, syncLog)
-  * getSurveys(surveyAddresses, syncLog)
-  * preSaveSyncLog(syncLog)
+And add a script to your `package.json` like this:
+
+```json
+{
+  "scripts": {
+    "start": "sivy",
+    "dev": "sivy dev"
+  }
+}
+```
+
+The `sivy dev` command enables the hot code reloading. No server restart is needed.
+
+### Handlers
+
+The file-system is the main API. Every `.js` file becomes a handler that gets automatically processed on every sync, and the container folder is when that handler is executed. The handlers support promise.
+
+| Folder           | Input parameters                                               |
+|------------------|----------------------------------------------------------------|
+| `receiveSurveys` | (surveys: `Array<object>`, syncLog: `SyncLog`)                 |
+| `preSaveSurvey`  | (surveyAddress: `SurveyAddress`, syncLog: `SyncLog`)           |
+| `getSurveys`     | (surveyAddresses: `Array<SurveyAddress>`, syncLog: `SyncLog`)  |
+| `preSaveSyncLog` | (syncLog: `SyncLog`)                                           |
+
+To log how many surveys we receive on a POST we can create a file into: `receiveSurveys/helloWorld.js` as the following:
+
+```js
+module.exports = surveys => console.log('Received surveys: ', surveys.length);
+```
+
+### Model
+
+By default the SurveyAddress has the following Mongoose's schema:
+
+```js
+{
+    dwellings: [{type: Mixed}],
+    user: {type: ObjectId, required: true},
+    address: {type: ObjectId, ref: 'Address', required: true},
+    surveyAddressState: {type: Number}
+}
+```
+
+You can strongly type the Dwelling's schema defining a `model/dwelling.js` as the following:
+
+```js
+const mongoose = require('mongoose');
+const {Mixed} = mongoose.Schema.Types;
+
+module.exports = {
+    order: {type: Number},
+    dwellingCharacteristics: {
+        ...
+    }
+};
+
+```
+
+### Environment variables
+
+| Required   | Variable             | Description                             | Defaults to                 |
+|------------|----------------------|-----------------------------------------|-----------------------------|
+|            | `NODE_ENV`           | Defines the running environment         | `development`               |
+|            | `PORT`               | Port where sivy will listen             | `3000`                      |
+|            | `MONGODB_URI`        | Connection string to the MongoDB server | `mongodb://localhost:27017` |
+|            | `RECEIVE_ONLY`       | True if Sivy works on receive_only mode | `false`                     |
+| :bangbang: | `AUTH_CLIENT_SECRET` | The secret to validate the JWT.         |                             |
+|            | `DEBUG`              | Set to `sivy` to turn on debug logging. |                             |
+
+### Authentication
+
+Sivy expects an Authorization header on the HTTP request as the following:
+
+```
+Authorization: Bearer <jwt>
+```
+
+The JWT will be verified using the AUTH_CLIENT_SECRET defined in the environment variables and the [verify method](https://github.com/auth0/node-jsonwebtoken#jwtverifytoken-secretorpublickey-options-callback) in the [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) package.
+
+## Debug
+
+To turn on the Sivy `debug mode` just set the environment variable `DEBUG=sivy`.
+
+## Production deployment
+
+To deploy just run the `sivy` command:
+
+```bash
+sivy
+```
+
+For example, to deploy with `now` a package.json like follows is recommended:
+
+```json
+{
+  "name": "my-sync",
+  "dependencies": {
+    "@indec/sivy": "latest"
+  },
+  "scripts": {
+    "start": "sivy"
+  }
+}
+```
+
+Note: It’s your responsibility to set `NODE_ENV=production` manually!
