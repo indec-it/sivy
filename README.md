@@ -1,6 +1,6 @@
 # Sivy  &middot; [![NPM version](https://img.shields.io/npm/v/@indec/sivy.svg)](https://www.npmjs.com/package/@indec/sivy) [![Build Status](https://travis-ci.org/indec-it/sivy.svg?branch=master)](https://travis-ci.org/indec-it/sivy) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/indec-it/sivy/blob/master/LICENSE)
 
-The survey sincronization server for MongoDB.
+The survey synchronization server for MongoDB.
 
 ## How to use
 
@@ -12,7 +12,7 @@ Install it:
 npm install @indec/sivy
 ```
 
-> Sivy requires node@8.9
+> Sivy requires node@10.11
 
 And add a script to your `package.json` like this:
 
@@ -41,7 +41,7 @@ The file-system is the main API. Every `.js` file becomes a handler that gets au
 To log how many surveys we receive on a POST we can create a file into: `receiveSurveys/helloWorld.js` as the following:
 
 ```js
-module.exports = surveys => console.log('Received surveys: ', surveys.length);
+module.exports = surveys => console.log(`Received surveys: ${surveys.length}`);
 ```
 
 ### Model
