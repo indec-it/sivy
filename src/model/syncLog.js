@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const {Schema} = mongoose;
-const {ObjectId} = Schema.Types;
+
+const {ObjectId, Schema} = mongoose;
 
 module.exports = mongoose.model('SyncLog', new Schema({
     user: {type: ObjectId, required: true, ref: 'User'},

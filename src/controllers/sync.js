@@ -44,7 +44,7 @@ const getSurvey = async surveyAddress => {
 
 class SyncController {
     static initSyncLog(req, res, next) {
-        debug('initSyncLog for user %s', req.user._id);
+        debug(`initSyncLog for user ${req.user._id}`);
         req.syncLog = new SyncLog({
             user: req.user._id,
             received: 0,
@@ -61,7 +61,7 @@ class SyncController {
         try {
             const surveys = req.body.surveys;
             const surveysCount = surveys ? surveys.length : 0;
-            debug('received %s surveys', surveysCount);
+            debug(`received ${surveysCount} surveys`);
             if (surveysCount === 0) {
                 return next();
             }
@@ -84,7 +84,7 @@ class SyncController {
                 user: req.user._id,
                 surveyAddressState: {$lt: surveyAddressState.CLOSED}
             }).populate('address').exec();
-            debug('sending %s surveys', surveyAddresses.length);
+            debug(`sending ${surveyAddresses.length} surveys`);
             req.syncLog.sent = surveyAddresses.length;
             await syncHandlers.getSurveys(surveyAddresses, req.syncLog);
             res.surveyAddresses = await Promise.all(map(surveyAddresses, getSurvey));
@@ -98,7 +98,7 @@ class SyncController {
         try {
             await syncHandlers.preSaveSyncLog(req.syncLog);
             await req.syncLog.save();
-            debug('syncLog saved for user %s', req.user._id);
+            debug(`syncLog saved for user ${req.user._id}`);
             next();
         } catch (err) {
             next(err);

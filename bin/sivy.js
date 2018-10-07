@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const winston = require('winston');
+const logger = require('../src/helpers/logger');
 const path = require('path');
 const {spawn} = require('child_process');
 const {keys, forEach} = require('lodash');
@@ -11,7 +11,7 @@ if (pkg.peerDependencies) {
             // When 'npm link' is used it checks the clone location. Not the project.
             require.resolve(dependency);
         } catch (err) {
-            winston.warn(`The module '${dependency}' was not found. Next.js requires that you include it in 'dependencies' of your 'package.json'. To add it, run 'npm install --save ${dependency}'`);
+            logger.warn(`The module '${dependency}' was not found. Next.js requires that you include it in 'dependencies' of your 'package.json'. To add it, run 'npm install --save ${dependency}'`);
         }
     });
 }
@@ -27,7 +27,7 @@ let args = [];
 const nodeArgs = [];
 
 if (new Set(['--version', '-v']).has(cmd)) {
-    winston.info(`sivy v${pkg.version}`);
+    logger.info(`sivy v${pkg.version}`);
     process.exit(0);
 }
 
@@ -36,7 +36,7 @@ if (new Set(process.argv).has('--inspect')) {
 }
 
 if (new Set(['--help', '-h']).has(cmd)) {
-    winston.info(`
+    logger.info(`
     Usage
       $ sivy <command>
 
@@ -71,13 +71,13 @@ const startProcess = () => {
             if (signal === 'SIGKILL') {
                 process.exit(137);
             }
-            winston.info(`got signal ${signal}, exiting`);
+            logger.info(`got signal ${signal}, exiting`);
             process.exit(1);
         }
         process.exit(0);
     });
     proc.on('error', (err) => {
-        winston.error(err);
+        logger.error(err);
         process.exit(1);
     });
     return proc;
@@ -92,7 +92,7 @@ if (cmd === 'dev') {
             // Folder does not exists
             return;
         }
-        winston.info('\n> Found a change in %s restarting the server...', folder);
+        logger.info(`\n> Found a change in ${folder} restarting the server...`);
         // Don't listen to 'close' now since otherwise parent gets killed by listener
         proc.removeAllListeners('close');
         proc.kill();

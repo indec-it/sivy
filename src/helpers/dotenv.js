@@ -1,8 +1,8 @@
 require('dotenv').load();
-const winston = require('winston');
+const logger = require('./logger');
 
 if (!process.env.AUTH_CLIENT_SECRET) {
-    winston.error('AUTH_CLIENT_SECRET environment variable is required.');
+    logger.error('AUTH_CLIENT_SECRET environment variable is required.');
     process.exit(1);
 }
 

@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-const {Schema} = mongoose;
-const {ObjectId} = Schema.Types;
 
 const dwelling = require('./dwelling');
+
+const {ObjectId, Schema} = mongoose;
 
 module.exports = mongoose.model('SurveyAddress', new Schema({
     dwellings: [dwelling],

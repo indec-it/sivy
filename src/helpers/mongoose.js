@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const winston = require('winston');
+const logger = require('../helpers/logger');
 
 class Mongoose {
     static configure() {
@@ -7,18 +7,16 @@ class Mongoose {
 
         mongoose.Promise = Promise;
 
-        mongoose.connect(MONGODB_URI);
+        mongoose.connect(MONGODB_URI, {useNewUrlParser: true});
 
         mongoose.connection.once('open',
-            () => winston.info(
-                'Mongoose connected to %s:%s/%s',
-                mongoose.connection.host,
-                mongoose.connection.port,
-                mongoose.connection.db.databaseName
-            )
+            () => {
+                const {host, port, db} = mongoose.connection;
+                logger.info(`Mongoose connected to ${host}:${port}/${db.databaseName}`);
+            }
         );
-        mongoose.connection.on('close', () => winston.info('Mongoose connection closed'));
-        mongoose.connection.on('error', err => winston.error('Mongoose connection error: %s', err));
+        mongoose.connection.on('close', () => logger.info('Mongoose connection closed'));
+        mongoose.connection.on('error', err => logger.error(`Mongoose connection error: ${err.stack}`));
     }
 }
 

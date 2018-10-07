@@ -1,9 +1,10 @@
 const {RECEIVE_ONLY} = process.env;
-const winston = require('winston');
+
+const logger = require('../helpers/logger');
 const SyncController = require('../controllers/sync');
 
 module.exports = router => {
-    winston.info('Sync mode: %s.', RECEIVE_ONLY ? 'receive-only' : 'send+receive');
+    logger.info(`Sync mode: ${RECEIVE_ONLY ? 'receive-only' : 'send+receive'}.`);
 
     if (RECEIVE_ONLY) {
         router.post('/',
