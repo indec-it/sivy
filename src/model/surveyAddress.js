@@ -9,4 +9,4 @@ module.exports = mongoose.model('SurveyAddress', new Schema({
     user: {type: ObjectId, required: true},
     address: {type: ObjectId, ref: 'Address', required: true},
     state: {type: Number}
-}, {collection: 'surveyAddresses_sivy', timestamps: true}));
+}, {collection: 'surveyAddresses', timestamps: true}));
