@@ -1,7 +1,7 @@
 const {RECEIVE_ONLY} = process.env;
 
 const logger = require('../helpers/logger');
-const SyncController = require('../controllers/sync');
+const {SyncController} = require('../controllers');
 
 module.exports = router => {
     logger.info(`Sync mode: ${RECEIVE_ONLY ? 'receive-only' : 'send+receive'}.`);

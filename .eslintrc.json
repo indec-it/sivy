@@ -57,12 +57,16 @@
     "promise/no-callback-in-promise": "off",
     "promise/avoid-new": "off",
     "lodash/prefer-lodash-method": [
-      2,
+      "error",
       {
         "ignoreMethods": [
           "find"
         ]
       }
+    ],
+    "lodash/matches-prop-shorthand": [
+      "error",
+      "never"
     ]
   }
 }
