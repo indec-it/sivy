@@ -81,6 +81,7 @@ module.exports = {
 |            | `MONGODB_URI`        | Connection string to the MongoDB server | `mongodb://localhost:27017` |
 |            | `RECEIVE_ONLY`       | True if Sivy works on receive_only mode | `false`                     |
 | :bangbang: | `AUTH_CLIENT_SECRET` | The secret to validate the JWT.         |                             |
+|            | `MORGAN_FORMAT`      | Log format used by Morgan package       | `dev` on `NODE_ENV=development`, `combined` on `NODE_ENV=production` |
 |            | `DEBUG`              | Set to `sivy` to turn on debug logging. |                             |
 
 ### Authentication
