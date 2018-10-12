@@ -3,7 +3,7 @@ const {map, size, isEmpty} = require('lodash');
 
 const {SurveyAddress, surveyAddressState, SyncLog} = require('../model');
 const syncHandlers = require('../helpers/syncHandlers');
-const {SyncService} = require('../services');
+const {SurveyService, SyncService} = require('../services');
 
 const setSurvey = async (survey, syncLog, user) => {
     if (survey.closed) {
@@ -24,12 +24,7 @@ const setSurvey = async (survey, syncLog, user) => {
     if (!surveyAddress) {
         return;
     }
-    surveyAddress.surveyAddressState = survey.closed ? surveyAddressState.RESOLVED : surveyAddressState.IN_PROGRESS;
-    surveyAddress.visits = survey.visits;
-    surveyAddress.dwellings = survey.dwellings;
-    if (survey.valid >= 0) {
-        surveyAddress.valid = survey.valid;
-    }
+    SurveyService.assign(surveyAddress, survey);
     await syncHandlers.preSaveSurvey(surveyAddress, syncLog);
     await surveyAddress.save();
 };

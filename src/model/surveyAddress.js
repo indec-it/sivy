@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 const logger = require('../helpers/logger');
 const dwelling = require('./dwelling');
+const surveyAddressAdditionalAttributes = require('./surveyAddressAdditionalAttributes');
 
 const {ObjectId, Schema} = mongoose;
 
@@ -12,11 +13,14 @@ const surveyAddressSchema = new Schema({
     dwellings: [dwelling],
     user: {type: ObjectId, required: true},
     address: {type: ObjectId, ref: 'Address', required: true},
-    state: {type: Number}
+    surveyAddressState: {type: Number},
+    state: {type: Number},
+    valid: {type: Number},
+    ...surveyAddressAdditionalAttributes
 }, {collection: SURVEYS_COLLECTION, timestamps: true});
 
 const surveysHistory = SURVEYS_HISTORY === true.toString();
-logger.info(`Surveys history is turned ${surveysHistory ? 'on' : 'off'}.`);
+logger.info(`Surveys history is turned ${surveysHistory ? 'ON' : 'off'}.`);
 
 if (surveysHistory) {
     surveyAddressSchema.plugin(require('mongoose-history'));

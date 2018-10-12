@@ -8,7 +8,7 @@ module.exports = router => {
     logger.info(`Sync mode: ${receiveOnly ? 'receive-only' : 'send+receive'}.`);
 
     const surveysDump = SURVEYS_DUMP === true.toString();
-    logger.info(`Surveys dump is turned ${surveysDump ? 'on' : 'off'}.`);
+    logger.info(`Surveys dump is turned ${surveysDump ? 'ON' : 'off'}.`);
 
     const middlewares = [];
     if (surveysDump) {

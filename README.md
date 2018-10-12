@@ -53,7 +53,9 @@ By default the SurveyAddress has the following Mongoose's schema:
     dwellings: [{type: Mixed}],
     user: {type: ObjectId, required: true},
     address: {type: ObjectId, ref: 'Address', required: true},
-    surveyAddressState: {type: Number}
+    surveyAddressState: {type: Number},
+    state: {type: Number},
+    valid: {type: Number}
 }
 ```
 
@@ -68,6 +70,18 @@ module.exports = {
 };
 
 ```
+
+Also, you can add additional attributes to the SurveyAddress's schema defining a `model/surveyAddress.js` as the following:
+
+```js
+module.exports = {
+    visits: [{
+        order: {type: Number, required: true},
+        date: {type: Date, required: true},
+        comments: {type:String}
+    }]
+};
+``` 
 
 ### Environment variables
 

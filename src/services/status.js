@@ -1,9 +1,10 @@
-const path = require('path');
 const mongoose = require('mongoose');
 const {every, concat} = require('lodash');
 
+const UtilService = require('./util');
+
 const sivyPkg = require('../../package');
-const pkg = require(path.resolve('./package.json'));
+const pkg = UtilService.tryRequire('./package.json') || {};
 
 /**
  * Creates the status object
