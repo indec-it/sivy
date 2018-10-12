@@ -1,5 +1,4 @@
 const debug = require('debug')('sivy');
-const {RECEIVE_ONLY} = process.env;
 const {map} = require('lodash');
 const {SurveyAddress, surveyAddressState, SyncLog} = require('../model');
 const syncHandlers = require('../helpers/syncHandlers');
@@ -44,7 +43,7 @@ const getSurvey = async surveyAddress => {
 
 class SyncController {
     static initSyncLog(req, res, next) {
-        debug(`initSyncLog for user ${req.user._id}`);
+        debug(`Init a syncLog for user ${req.user._id}.`);
         req.syncLog = new SyncLog({
             user: req.user._id,
             received: 0,
@@ -61,30 +60,29 @@ class SyncController {
         try {
             const surveys = req.body.surveys;
             const surveysCount = surveys ? surveys.length : 0;
-            debug(`received ${surveysCount} surveys`);
+            debug(`Received ${surveysCount} surveys from user ${req.user._id}.`);
             if (surveysCount === 0) {
                 return next();
             }
             req.syncLog.received = surveys.length;
             await syncHandlers.receiveSurveys(surveys, req.syncLog);
             await Promise.all(map(surveys, survey => setSurvey(survey, req.syncLog, req.user)));
+            debug(`Saved ${surveysCount} surveys from user ${req.user._id}.`);
             next();
-        }
-        catch (err) {
+        } catch (err) {
+            debug(`An error saving surveys for user ${req.user._id} has occurred.`);
             next(err);
         }
     }
 
     static async getSurveys(req, res, next) {
         try {
-            if (RECEIVE_ONLY) {
-                return next();
-            }
+            debug(`Fetching surveys for user ${req.user._id}...`);
             const surveyAddresses = await SurveyAddress.find({
                 user: req.user._id,
                 surveyAddressState: {$lt: surveyAddressState.CLOSED}
             }).populate('address').exec();
-            debug(`sending ${surveyAddresses.length} surveys`);
+            debug(`Sending ${surveyAddresses.length} surveys for user ${req.user._id}...`);
             req.syncLog.sent = surveyAddresses.length;
             await syncHandlers.getSurveys(surveyAddresses, req.syncLog);
             res.surveyAddresses = await Promise.all(map(surveyAddresses, getSurvey));
@@ -98,9 +96,10 @@ class SyncController {
         try {
             await syncHandlers.preSaveSyncLog(req.syncLog);
             await req.syncLog.save();
-            debug(`syncLog saved for user ${req.user._id}`);
+            debug(`SyncLog saved for user ${req.user._id}.`);
             next();
         } catch (err) {
+            debug(`An error saving the syncLog for user ${req.user._id} has occurred.`);
             next(err);
         }
     }

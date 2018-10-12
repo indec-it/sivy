@@ -82,6 +82,7 @@ module.exports = {
 |            | `RECEIVE_ONLY`       | True if Sivy works on receive_only mode | `false`                     |
 | :bangbang: | `AUTH_CLIENT_SECRET` | The secret to validate the JWT.         |                             |
 |            | `SURVEYS_COLLECTION` | The surveys collection name on MongoDB  | `surveyAddresses`           |
+|            | `SURVEYS_HISTORY`    | Keeps a history of survey changes       | `true`                      |
 |            | `MORGAN_FORMAT`      | Log format used by Morgan package       | `dev` on `NODE_ENV=development`, `combined` on `NODE_ENV=production` |
 |            | `DEBUG`              | Set to `sivy` to turn on debug logging. |                             |
 
