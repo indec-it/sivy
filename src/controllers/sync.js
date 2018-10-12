@@ -1,13 +1,15 @@
 const debug = require('debug')('sivy');
-const {map} = require('lodash');
+const {map, size, isEmpty} = require('lodash');
+
 const {SurveyAddress, surveyAddressState, SyncLog} = require('../model');
 const syncHandlers = require('../helpers/syncHandlers');
+const {SyncService} = require('../services');
 
 const setSurvey = async (survey, syncLog, user) => {
     if (survey.closed) {
         syncLog.closed++;
     }
-    if (survey.visits && survey.visits.length) {
+    if (!isEmpty(survey.visits)) {
         syncLog.visited++;
     }
     if (!survey.synced) {
@@ -42,6 +44,17 @@ const getSurvey = async surveyAddress => {
 };
 
 class SyncController {
+    static async dumpSurveys(req, res, next) {
+        try {
+            debug(`Dumping ${size(req.body.surveys)} surveys from user ${req.user._id}...`);
+            await SyncService.dumpSurveys(req.user._id, req.body.surveys);
+            next();
+        } catch (err) {
+            debug(`An error dumping the surveys for user ${req.user._id} has occurred.`);
+            next(err);
+        }
+    }
+
     static initSyncLog(req, res, next) {
         debug(`Init a syncLog for user ${req.user._id}.`);
         req.syncLog = new SyncLog({
@@ -59,12 +72,12 @@ class SyncController {
     static async setSurveys(req, res, next) {
         try {
             const surveys = req.body.surveys;
-            const surveysCount = surveys ? surveys.length : 0;
+            const surveysCount = size(surveys);
             debug(`Received ${surveysCount} surveys from user ${req.user._id}.`);
             if (surveysCount === 0) {
                 return next();
             }
-            req.syncLog.received = surveys.length;
+            req.syncLog.received = surveysCount;
             await syncHandlers.receiveSurveys(surveys, req.syncLog);
             await Promise.all(map(surveys, survey => setSurvey(survey, req.syncLog, req.user)));
             debug(`Saved ${surveysCount} surveys from user ${req.user._id}.`);
@@ -82,8 +95,8 @@ class SyncController {
                 user: req.user._id,
                 surveyAddressState: {$lt: surveyAddressState.CLOSED}
             }).populate('address').exec();
-            debug(`Sending ${surveyAddresses.length} surveys for user ${req.user._id}...`);
-            req.syncLog.sent = surveyAddresses.length;
+            req.syncLog.sent = size(surveyAddresses);
+            debug(`Sending ${req.syncLog.sent} surveys for user ${req.user._id}...`);
             await syncHandlers.getSurveys(surveyAddresses, req.syncLog);
             res.surveyAddresses = await Promise.all(map(surveyAddresses, getSurvey));
             next();

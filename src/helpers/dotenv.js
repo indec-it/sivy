@@ -12,6 +12,7 @@ process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost';
 process.env.RECEIVE_ONLY = process.env.RECEIVE_ONLY || false;
 process.env.SURVEYS_COLLECTION = process.env.SURVEYS_COLLECTION || 'surveyAddresses';
 process.env.SURVEYS_HISTORY = process.env.SURVEYS_HISTORY || true;
+process.env.SURVEYS_DUMP = process.env.SURVEYS_DUMP || false;
 
 if (!process.env.MORGAN_FORMAT) {
     process.env.MORGAN_FORMAT = process.env.NODE_ENV === 'development' ? 'dev' : 'combined';
