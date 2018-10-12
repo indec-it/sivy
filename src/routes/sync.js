@@ -4,9 +4,10 @@ const logger = require('../helpers/logger');
 const {SyncController} = require('../controllers');
 
 module.exports = router => {
-    logger.info(`Sync mode: ${RECEIVE_ONLY ? 'receive-only' : 'send+receive'}.`);
+    const receiveOnly = RECEIVE_ONLY === true.toString();
+    logger.info(`Sync mode: ${receiveOnly ? 'receive-only' : 'send+receive'}.`);
 
-    if (RECEIVE_ONLY) {
+    if (receiveOnly) {
         router.post('/',
             SyncController.initSyncLog,
             SyncController.setSurveys,

@@ -1,4 +1,4 @@
-require('dotenv').load();
+require('dotenv').config();
 const logger = require('./logger');
 
 if (!process.env.AUTH_CLIENT_SECRET) {
@@ -9,3 +9,9 @@ if (!process.env.AUTH_CLIENT_SECRET) {
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.PORT = process.env.PORT || 3000;
 process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost';
+process.env.RECEIVE_ONLY = process.env.RECEIVE_ONLY || false;
+process.env.SURVEYS_COLLECTION = process.env.SURVEYS_COLLECTION || 'surveyAddresses';
+
+if (!process.env.MORGAN_FORMAT) {
+    process.env.MORGAN_FORMAT = process.env.NODE_ENV === 'development' ? 'dev' : 'combined';
+}
