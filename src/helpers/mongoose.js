@@ -7,7 +7,11 @@ class Mongoose {
 
         mongoose.Promise = Promise;
 
-        mongoose.connect(MONGODB_URI, {useNewUrlParser: true});
+        mongoose.connect(MONGODB_URI, {
+            useNewUrlParser: true,
+            useFindAndModify: false,
+            useCreateIndex: true
+        });
 
         mongoose.connection.once('open',
             () => {

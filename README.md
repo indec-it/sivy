@@ -12,7 +12,7 @@ Install it:
 npm install @indec/sivy
 ```
 
-> Sivy requires node@10.11
+> Sivy requires node@10.12
 
 And add a script to your `package.json` like this:
 
@@ -60,9 +60,6 @@ By default the SurveyAddress has the following Mongoose's schema:
 You can strongly type the Dwelling's schema defining a `model/dwelling.js` as the following:
 
 ```js
-const mongoose = require('mongoose');
-const {Mixed} = mongoose.Schema.Types;
-
 module.exports = {
     order: {type: Number},
     dwellingCharacteristics: {
