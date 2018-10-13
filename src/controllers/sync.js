@@ -25,7 +25,7 @@ const setSurvey = async (survey, syncLog, user) => {
         return;
     }
     SurveyService.assign(surveyAddress, survey);
-    await syncHandlers.preSaveSurvey(surveyAddress, syncLog);
+    await syncHandlers.preSaveSurvey(surveyAddress, survey, syncLog);
     await surveyAddress.save();
 };
 

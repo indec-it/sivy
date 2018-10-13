@@ -31,12 +31,13 @@ The `sivy dev` command enables the hot code reloading. No server restart is need
 
 The file-system is the main API. Every `.js` file becomes a handler that gets automatically processed on every sync, and the container folder is when that handler is executed. The handlers support promise.
 
-| Folder           | Input parameters                                               |
-|------------------|----------------------------------------------------------------|
-| `receiveSurveys` | (surveys: `Array<object>`, syncLog: `SyncLog`)                 |
-| `preSaveSurvey`  | (surveyAddress: `SurveyAddress`, syncLog: `SyncLog`)           |
-| `getSurveys`     | (surveyAddresses: `Array<SurveyAddress>`, syncLog: `SyncLog`)  |
-| `preSaveSyncLog` | (syncLog: `SyncLog`)                                           |
+| Folder           | Input parameters                                                       |
+|------------------|------------------------------------------------------------------------|
+| `dumpSurveys`    | (surveyDump: `SurveyDump`, surveys: `Array<object>`)                   |
+| `receiveSurveys` | (surveys: `Array<object>`, syncLog: `SyncLog`)                         |
+| `preSaveSurvey`  | (surveyAddress: `SurveyAddress`, survey: `object`, syncLog: `SyncLog`) |
+| `getSurveys`     | (surveyAddresses: `Array<SurveyAddress>`, syncLog: `SyncLog`)          |
+| `preSaveSyncLog` | (syncLog: `SyncLog`)                                                   |
 
 To log how many surveys we receive on a POST we can create a file into: `receiveSurveys/helloWorld.js` as the following:
 

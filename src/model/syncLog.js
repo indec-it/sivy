@@ -11,4 +11,4 @@ module.exports = mongoose.model('SyncLog', new Schema({
     sent: {type: Number},
     created: {type: Number},
     version: {type: String}
-}, {collection: 'syncLogs', timestamps: true}));
+}, {collection: 'syncLogs', strict: false, timestamps: true}));

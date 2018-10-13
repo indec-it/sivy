@@ -1,30 +1,31 @@
-const fs = require('fs');
-const path = require('path');
-const requireDir = require('require-dir');
-const {map, toArray} = require('lodash');
+const {map} = require('lodash');
 
-const loadHandlers = handlers => {
-    const folder = path.resolve(`./${handlers}`);
-    return fs.existsSync(folder) ? toArray(requireDir(folder)) : [];
-};
+const UtilService = require('../services/util');
+
+const loadHandlers = handlers => UtilService.tryRequireDir(`./${handlers}`);
 
 // eslint-disable-next-line lodash/prefer-invoke-map
 const runHandlers = (handlers, args) => Promise.all(map(handlers, handler => handler.apply(null, args)));
 
 class SyncHandlers {
     static configure() {
+        SyncHandlers.dumpSurveysHandlers = loadHandlers('dumpSurveys');
         SyncHandlers.receiveSurveysHandlers = loadHandlers('receiveSurveys');
         SyncHandlers.preSaveSurveyHandlers = loadHandlers('preSaveSurvey');
         SyncHandlers.getSurveysHandlers = loadHandlers('getSurveys');
         SyncHandlers.preSaveSyncLogHandlers = loadHandlers('preSaveSyncLog');
     }
 
+    static dumpSurveys(surveyDump, surveys) {
+        return runHandlers(SyncHandlers.dumpSurveysHandlers, [surveyDump, surveys]);
+    }
+
     static receiveSurveys(surveys, syncLog) {
         return runHandlers(SyncHandlers.receiveSurveysHandlers, [surveys, syncLog]);
     }
 
-    static preSaveSurvey(surveyAddress, syncLog) {
-        return runHandlers(SyncHandlers.preSaveSurveyHandlers, [surveyAddress, syncLog]);
+    static preSaveSurvey(surveyAddress, survey, syncLog) {
+        return runHandlers(SyncHandlers.preSaveSurveyHandlers, [surveyAddress, survey, syncLog]);
     }
 
     static getSurveys(surveyAddresses, syncLog) {
